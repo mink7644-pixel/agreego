@@ -524,24 +524,10 @@ export default function TripApp() {
               )}
             </h1>
 
-            <p className="mt-3 text-sm leading-6 text-gray-600">
-              {isJoiningRoom
-                ? "닉네임만 입력하면 같은 여행방에 참여할 수 있어요."
-                : "새 여행방을 만들고 친구들에게 초대 링크를 공유할 수 있어요."}
+            <p className="mt-4 text-sm text-gray-600">
+              닉네임과 개인 입장 번호를 입력해 여행방에 참여해주세요.
             </p>
           </div>
-
-          {isJoiningRoom && (
-            <div className="mt-6 rounded-xl bg-blue-50 px-4 py-3">
-              <p className="text-xs font-semibold text-blue-600">
-                초대 코드
-              </p>
-
-              <p className="mt-1 font-bold tracking-wider text-blue-900">
-                {roomCode}
-              </p>
-            </div>
-          )}
 
           <form
             onSubmit={handleEnterTrip}
