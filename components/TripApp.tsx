@@ -1,4 +1,8 @@
 "use client";
+import BottomNavigation, {
+  type AppTab,
+} from "./BottomNavigation";
+import HomePage from "./HomePage";
 
 import {
   FormEvent,
@@ -58,6 +62,7 @@ function createInviteCode() {
 }
 
 export default function TripApp() {
+  const [activeTab, setActiveTab] = useState<AppTab>("home");
   const [tripName, setTripName] = useState("");
   const [nickname, setNickname] = useState("");
   const [pin, setPin] = useState("");
@@ -656,7 +661,7 @@ export default function TripApp() {
     `/?room=${profile.inviteCode}`;
 
   return (
-    <main className="min-h-screen bg-gray-100 px-5 py-8 sm:py-10">
+    <main className="min-h-screen bg-[#F7F7F5] px-5 py-8 pb-28 sm:py-10">
       <div className="mx-auto max-w-5xl">
         <header className="mb-6 rounded-2xl bg-white p-5 shadow-sm">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
@@ -717,9 +722,24 @@ export default function TripApp() {
 
         <SupabaseStatus />
 
-        <GoogleMap
-          tripId={profile.tripId}
-          participantId={profile.participantId}
+        <div className="mt-5">
+          {activeTab === "home" ? (
+            <HomePage
+              tripName={profile.tripName}
+              nickname={profile.nickname}
+              onNavigate={setActiveTab}
+            />
+          ) : (
+            <GoogleMap
+              tripId={profile.tripId}
+              participantId={profile.participantId}
+            />
+          )}
+        </div>
+
+        <BottomNavigation
+          activeTab={activeTab}
+          onChange={setActiveTab}
         />
       </div>
     </main>

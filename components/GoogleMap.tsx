@@ -1797,7 +1797,10 @@ export default function GoogleMap({
       </div>
 
       {/* 후보 장소 추가 영역 */}
-      <div className="rounded-2xl bg-white p-5 shadow-sm">
+      <div
+        id="places-section"
+        className="scroll-mt-6 rounded-2xl bg-white p-5 shadow-sm"
+      >
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="text-lg font-bold text-gray-900">
