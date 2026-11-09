@@ -1,7 +1,6 @@
+"use client";
 import { Map, MapPin, House, Check, Plane } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-
-"use client";
 
 export type AppTab = "map" | "places" | "home" | "vote" | "trip";
 
