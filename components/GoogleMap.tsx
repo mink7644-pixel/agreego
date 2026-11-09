@@ -1636,15 +1636,20 @@ export default function GoogleMap({
         )}
       </div>
 
-      <div>
+      <div className="mx-auto w-full max-w-md">
+        <div className="mb-4">
+          <p className="text-[15px] leading-6 text-[#74777F]">
+            Explore places suggested by your group.
+          </p>
+        </div>
+
         <div
           ref={mapContainerRef}
-          className="h-[420px] w-full overflow-hidden rounded-2xl bg-gray-200"
+          className="h-[481px] min-h-[430px] w-full overflow-hidden rounded-[20px] border border-[#E2E4E8] bg-[#EEF0EB]"
         />
 
-        <p className="mt-2 text-xs text-gray-500">
-          지도 핀이나 장소 카드를 누르면 해당
-          위치로 이동합니다.
+        <p className="mt-3 text-sm leading-6 text-[#74777F]">
+          지도 핀을 선택하면 장소의 위치를 확인할 수 있어요.
         </p>
       </div>
 

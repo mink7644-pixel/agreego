@@ -12,6 +12,7 @@ type Place = {
   category: string | null;
   address: string | null;
   is_confirmed: boolean;
+  confirmed_order: number | null;
 };
 
 type Vote = {
@@ -93,7 +94,13 @@ export default function VotePage({ tripId, participantId }: Props) {
   const [votes, setVotes] = useState<Vote[]>([]);
   const [participantCount, setParticipantCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [voteView, setVoteView] = useState<"voting" | "confirmed">(
+    "voting"
+  );
+  const [selectedCategory, setSelectedCategory] =
+    useState<ResultCategory | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
@@ -104,7 +111,7 @@ export default function VotePage({ tripId, participantId }: Props) {
         await Promise.all([
           supabase
             .from("places")
-            .select("id, name, category, address, is_confirmed")
+            .select("id, name, category, address, is_confirmed, confirmed_order")
             .eq("trip_id", tripId)
             .order("created_at", { ascending: true }),
 
@@ -178,6 +185,59 @@ export default function VotePage({ tripId, participantId }: Props) {
       void supabase.removeChannel(channel);
     };
   }, [tripId]);
+  
+    async function handleToggleConfirm(place: Place) {
+    if (confirmingId !== null) return;
+
+    const nextIsConfirmed = !place.is_confirmed;
+
+    const highestOrder = places.reduce(
+        (highest, currentPlace) =>
+        Math.max(highest, currentPlace.confirmed_order ?? 0),
+        0
+    );
+
+    const nextOrder = nextIsConfirmed ? highestOrder + 1 : null;
+
+    setConfirmingId(place.id);
+    setErrorMessage("");
+
+    try {
+        const { error } = await supabase
+        .from("places")
+        .update({
+            is_confirmed: nextIsConfirmed,
+            confirmed_order: nextOrder,
+        })
+        .eq("id", place.id)
+        .eq("trip_id", tripId);
+
+        if (error) throw error;
+
+        // 저장 성공 후 현재 화면 즉시 업데이트
+        setPlaces((previous) =>
+        previous.map((current) =>
+            current.id === place.id
+            ? {
+                ...current,
+                is_confirmed: nextIsConfirmed,
+                confirmed_order: nextOrder,
+                }
+            : current
+        )
+        );
+    } catch (error) {
+        console.error(error);
+        setErrorMessage(
+        nextIsConfirmed
+            ? "장소를 확정하지 못했습니다."
+            : "장소 확정을 취소하지 못했습니다."
+        );
+    } finally {
+        setConfirmingId(null);
+    }
+    }
+
 
   async function handleVote(placeId: string, preference: VoteOption) {
     if (savingId) return;
@@ -259,6 +319,22 @@ export default function VotePage({ tripId, participantId }: Props) {
     categoryCounts[category] += 1;
     });
 
+    const confirmedPlaces = places
+        .filter((place) => place.is_confirmed)
+        .sort(
+            (a, b) =>
+            (a.confirmed_order ?? Number.MAX_SAFE_INTEGER) -
+            (b.confirmed_order ?? Number.MAX_SAFE_INTEGER)
+        );
+
+    const filteredPlaces = selectedCategory
+        ? places.filter(
+            (place) =>
+                getResultCategory(place.id, votes, participantCount) ===
+                selectedCategory
+            )
+        : places;
+
   const myVotedCount = places.filter((place) =>
     votes.some(
       (vote) =>
@@ -272,6 +348,44 @@ export default function VotePage({ tripId, participantId }: Props) {
       <p className="text-[15px] leading-6 text-[#74777F]">
         Share preferences and find places everyone can agree on.
       </p>
+      
+        {/* Voting / Confirmed 화면 전환 */}
+        <div className="grid grid-cols-2 gap-1 rounded-[13px] bg-[#EEF0F3] p-1">
+        <button
+            type="button"
+            onClick={() => setVoteView("voting")}
+            aria-pressed={voteView === "voting"}
+            className={`flex min-h-11 items-center justify-center gap-2 rounded-[10px] text-sm font-medium ${
+            voteView === "voting"
+                ? "bg-white text-[#17181B] shadow-sm"
+                : "text-[#74777F]"
+            }`}
+        >
+            Voting
+            <span className="rounded-full bg-black/5 px-2 py-0.5 text-xs">
+            {places.length}
+            </span>
+        </button>
+
+        <button
+            type="button"
+            onClick={() => setVoteView("confirmed")}
+            aria-pressed={voteView === "confirmed"}
+            className={`flex min-h-11 items-center justify-center gap-2 rounded-[10px] text-sm font-medium ${
+            voteView === "confirmed"
+                ? "bg-white text-[#17181B] shadow-sm"
+                : "text-[#74777F]"
+            }`}
+        >
+            Confirmed
+            <span className="rounded-full bg-black/5 px-2 py-0.5 text-xs">
+            {confirmedPlaces.length}
+            </span>
+        </button>
+        </div>
+
+        {voteView === "voting" && (
+          <>
       
         {/* 그룹 선호도 요약 */}
         <div>
@@ -309,11 +423,24 @@ export default function VotePage({ tripId, participantId }: Props) {
                 bg: "bg-[#EEF0F3]",
                 color: "text-[#656976]",
             },
-            ].map((item) => (
-            <div
-                key={item.key}
-                className={`rounded-2xl p-4 ${item.bg}`}
-            >
+            ].map((item) => {
+                const category = item.key as ResultCategory;
+                const isSelected = selectedCategory === category;
+
+                return (
+                    <button
+                    key={item.key}
+                    type="button"
+                    aria-pressed={isSelected}
+                    onClick={() =>
+                        setSelectedCategory(isSelected ? null : category)
+                    }
+                    className={`rounded-2xl p-4 text-left transition-all ${item.bg} ${
+                        isSelected
+                        ? "ring-2 ring-[#6264F6] ring-offset-2"
+                        : "hover:brightness-95"
+                    }`}
+                    >
                 <p className={`text-xs font-medium ${item.color}`}>
                 {item.label}
                 </p>
@@ -321,9 +448,19 @@ export default function VotePage({ tripId, participantId }: Props) {
                 <p className={`mt-2 text-2xl font-semibold ${item.color}`}>
                 {categoryCounts[item.key as ResultCategory]}
                 </p>
-            </div>
-            ))}
+                </button>
+                );
+            })}
         </div>
+        {selectedCategory && (
+            <button
+                type="button"
+                onClick={() => setSelectedCategory(null)}
+                className="mt-3 w-full rounded-xl border border-[#E2E4E8] bg-white px-4 py-3 text-sm font-medium text-[#6264F6]"
+            >
+                전체 장소 보기 ×
+            </button>
+        )}
         </div>
 
       <div className="rounded-2xl border border-[#E2E4E8] bg-white p-5">
@@ -369,7 +506,16 @@ export default function VotePage({ tripId, participantId }: Props) {
         </div>
       ) : (
         <div className="space-y-3">
-          {places.map((place) => {
+
+          {selectedCategory && filteredPlaces.length === 0 && (
+            <div className="rounded-2xl border border-[#E2E4E8] bg-white p-6 text-center">
+                <p className="text-sm text-[#74777F]">
+                해당 분류에 속한 장소가 없어요.
+                </p>
+            </div>
+            )}  
+
+          {filteredPlaces.map((place) => {
             const myVote = votes.find(
               (vote) =>
                 vote.place_id === place.id &&
@@ -441,11 +587,108 @@ export default function VotePage({ tripId, participantId }: Props) {
                     선택한 항목을 다시 누르면 투표가 취소됩니다.
                   </p>
                 )}
+                
+                <button
+                type="button"
+                onClick={() => void handleToggleConfirm(place)}
+                disabled={confirmingId !== null}
+                className={`mt-4 min-h-11 w-full rounded-xl border px-4 py-3 text-sm font-semibold disabled:opacity-50 ${
+                    place.is_confirmed
+                    ? "border-[#E2E4E8] bg-white text-[#74777F]"
+                    : "border-[#6264F6] bg-[#6264F6] text-white"
+                }`}
+                >
+                {confirmingId === place.id
+                    ? "저장 중..."
+                    : place.is_confirmed
+                    ? "확정 취소"
+                    : "이 장소 확정하기"}
+                </button>
+
               </article>
             );
           })}
         </div>
       )}
+        </>
+    )}
+    
+    {/* 확정된 장소 목록 */}
+    {voteView === "confirmed" && (
+    <div className="space-y-4">
+        <div>
+        <p className="text-xs font-medium tracking-[1.5px] text-[#4F51E2]">
+            FINAL DESTINATIONS
+        </p>
+        <h2 className="mt-1 text-xl font-semibold text-[#17181B]">
+            Confirmed Places
+        </h2>
+        <p className="mt-2 text-sm text-[#74777F]">
+            함께 가기로 확정한 장소들이에요.
+        </p>
+        </div>
+
+        {loading ? (
+        <p className="text-sm text-[#74777F]">
+            장소를 불러오는 중...
+        </p>
+        ) : confirmedPlaces.length === 0 ? (
+        <div className="rounded-2xl border border-[#E2E4E8] bg-white p-8 text-center">
+            <p className="text-base font-semibold text-[#17181B]">
+            아직 확정된 장소가 없어요.
+            </p>
+            <p className="mt-2 text-sm leading-6 text-[#74777F]">
+            투표 결과를 확인하고 함께 갈 장소를 결정해 보세요.
+            </p>
+        </div>
+        ) : (
+        <div className="space-y-3">
+            {confirmedPlaces.map((place, index) => (
+            <article
+                key={place.id}
+                className="rounded-2xl border border-[#E2E4E8] bg-white p-5 shadow-sm"
+            >
+                <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#E7F5EC] text-sm font-semibold text-[#25764E]">
+                    {index + 1}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-xs uppercase tracking-wider text-[#74777F]">
+                        {place.category || "PLACE"}
+                    </p>
+
+                    <span className="rounded-full bg-[#E7F5EC] px-2 py-1 text-xs font-medium text-[#25764E]">
+                        Confirmed
+                    </span>
+                    </div>
+
+                    <h3 className="mt-2 break-words text-base font-semibold text-[#17181B]">
+                    {place.name}
+                    </h3>
+
+                    <p className="mt-2 break-words text-sm text-[#74777F]">
+                    {place.address || "주소 정보 없음"}
+                    </p>
+
+                    <button
+                        type="button"
+                        onClick={() => void handleToggleConfirm(place)}
+                        disabled={confirmingId !== null}
+                        className="mt-4 min-h-11 rounded-xl border border-[#E2E4E8] bg-white px-4 text-xs font-medium text-[#74777F] disabled:opacity-50"
+                        >
+                        {confirmingId === place.id ? "저장 중..." : "확정 취소"}
+                        </button>
+                </div>
+                </div>
+            </article>
+            ))}
+        </div>
+        )}
+    </div>
+    )}
+
     </section>
   );
 }
