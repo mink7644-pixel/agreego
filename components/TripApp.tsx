@@ -1,4 +1,8 @@
 "use client";
+import TripPage from "./TripPage";
+import PlacesPage from "./PlacesPage";
+import VotePage from "./VotePage";
+
 import BottomNavigation, {
   type AppTab,
 } from "./BottomNavigation";
@@ -63,6 +67,8 @@ function createInviteCode() {
 
 export default function TripApp() {
   const [activeTab, setActiveTab] = useState<AppTab>("home");
+  const [focusAddPlace, setFocusAddPlace] = useState(false);
+  const [showInvite, setShowInvite] = useState(false);
   const [tripName, setTripName] = useState("");
   const [nickname, setNickname] = useState("");
   const [pin, setPin] = useState("");
@@ -661,64 +667,72 @@ export default function TripApp() {
     `/?room=${profile.inviteCode}`;
 
   return (
-    <main className="min-h-screen bg-[#F7F7F5] px-5 py-8 pb-28 sm:py-10">
+    <main className="min-h-screen bg-[#F7F7F5] pb-28">
       <div className="mx-auto max-w-5xl">
-        <header className="mb-6 rounded-2xl bg-white p-5 shadow-sm">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <p className="text-sm font-bold text-blue-600">
-                여행 장소 합의 서비스
-              </p>
+        <header className="mb-6 border-b border-[#E2E4E8] bg-white">
+          <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4">
+            {/* AgreeGo 브랜드 */}
+            <div className="flex items-center gap-2">
+              <span className="flex h-[30px] w-[30px] items-center justify-center rounded-lg bg-[#6264F6] text-lg font-bold text-white">
+                A
+              </span>
 
-              <h1 className="mt-1 text-2xl font-bold text-gray-900 sm:text-3xl">
-                {profile.tripName}
+              <h1 className="text-[21px] font-semibold tracking-[-1.2px] text-[#17181B]">
+                Agree<span className="text-[#6264F6]">Go</span>
               </h1>
-
-              <p className="mt-2 text-sm text-gray-600">
-                <span className="font-semibold text-gray-800">
-                  {profile.nickname}
-                </span>
-                님으로 참여 중입니다.
-              </p>
             </div>
 
-            <button
-              type="button"
-              onClick={handleLeaveTrip}
-              className="self-start rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-600 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
-            >
-              여행방 나가기
-            </button>
+            {/* 오른쪽 버튼 */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowInvite((prev) => !prev)}
+                aria-label="친구 초대"
+                aria-expanded={showInvite}
+                className="flex h-11 w-11 items-center justify-center rounded-[10px] border border-[#E2E4E8] bg-white text-xl text-[#17181B]"
+              >
+                ↗
+              </button>
+
+              <button
+                type="button"
+                onClick={handleLeaveTrip}
+                aria-label="여행방 나가기"
+                className="flex h-11 w-11 items-center justify-center rounded-[10px] border border-[#E2E4E8] bg-white text-xl text-[#17181B]"
+              >
+                ⇥
+              </button>
+            </div>
           </div>
 
-          <div className="mt-5 rounded-xl bg-gray-50 p-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold text-gray-500">
-                  친구 초대 링크
-                </p>
+          {/* 초대 버튼을 눌렀을 때만 표시 */}
+          {showInvite && (
+            <div className="mx-auto max-w-5xl border-t border-[#E2E4E8] px-5 py-4">
+              <p className="text-sm font-semibold text-[#17181B]">
+                친구 초대하기
+              </p>
 
-                <p className="mt-1 truncate text-sm text-gray-700">
-                  {inviteLink}
-                </p>
-              </div>
+              <p className="mt-2 break-all rounded-xl bg-[#F7F7F5] p-3 text-xs text-gray-600">
+                {inviteLink}
+              </p>
 
               <button
                 type="button"
                 onClick={handleCopyInviteLink}
-                className="shrink-0 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-bold text-white hover:bg-gray-800"
+                className="mt-3 w-full rounded-xl bg-[#6264F6] px-4 py-3 text-sm font-semibold text-white"
               >
-                링크 복사
+                초대 링크 복사
               </button>
-            </div>
 
-            {copyMessage && (
-              <p className="mt-2 text-xs font-medium text-blue-600">
-                {copyMessage}
-              </p>
-            )}
-          </div>
+              {copyMessage && (
+                <p className="mt-2 text-xs font-medium text-[#6264F6]">
+                  {copyMessage}
+                </p>
+              )}
+            </div>
+          )}
         </header>
+
 
         <SupabaseStatus />
 
@@ -729,17 +743,41 @@ export default function TripApp() {
               nickname={profile.nickname}
               onNavigate={setActiveTab}
             />
+          ) : activeTab === "trip" ? (
+            <TripPage
+              tripId={profile.tripId}
+              tripName={profile.tripName}
+              nickname={profile.nickname}
+              participantId={profile.participantId}
+              inviteLink={inviteLink}
+              onCopyInviteLink={handleCopyInviteLink}
+              copyMessage={copyMessage}
+            />
+          ) : activeTab === "places" ? (
+            <PlacesPage
+              tripId={profile.tripId}
+              participantId={profile.participantId}
+            />
+          ) : activeTab === "vote" ? (
+            <VotePage
+              tripId={profile.tripId}
+              participantId={profile.participantId}
+            />
           ) : (
             <GoogleMap
               tripId={profile.tripId}
               participantId={profile.participantId}
+              focusAddPlace={focusAddPlace && activeTab === "map"}
             />
           )}
         </div>
 
         <BottomNavigation
           activeTab={activeTab}
-          onChange={setActiveTab}
+          onChange={(tab) => {
+            setFocusAddPlace(false);
+            setActiveTab(tab);
+          }}
         />
       </div>
     </main>

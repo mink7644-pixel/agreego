@@ -47,6 +47,7 @@ type Place = {
 type GoogleMapProps = {
   tripId: string;
   participantId: string;
+  focusAddPlace?: boolean;
 };
 
 type SelectedGooglePlace = {
@@ -117,6 +118,7 @@ const voteStyles: Record<VoteOption, string> = {
 export default function GoogleMap({
   tripId,
   participantId,
+  focusAddPlace = false,
 }: GoogleMapProps) {
   const mapContainerRef =
     useRef<HTMLDivElement>(null);
@@ -222,6 +224,16 @@ export default function GoogleMap({
       },
     };
   }
+  useEffect(() => {
+    if (!focusAddPlace) return;
+
+    document
+      .getElementById("add-place-form")
+      ?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+  }, [focusAddPlace]);
 
   /*
    * 현재 여행방의 후보 장소 불러오기
@@ -1468,7 +1480,7 @@ export default function GoogleMap({
       return "recommended";
     }
 
-    return "needs_vote";
+    return "low_priority";
   }
 
   function getResultLabel(place: Place) {
@@ -1798,7 +1810,7 @@ export default function GoogleMap({
 
       {/* 후보 장소 추가 영역 */}
       <div
-        id="places-section"
+        id="add-place-form"
         className="scroll-mt-6 rounded-2xl bg-white p-5 shadow-sm"
       >
         <div className="flex items-start justify-between gap-4">
