@@ -3,7 +3,6 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
-import AddPlaceModal from "./AddPlaceModal";
 
 type Place = {
   id: string;
@@ -37,13 +36,14 @@ const voteLabels: Record<Vote["preference"], string> = {
 type PlacesPageProps = {
   tripId: string;
   participantId: string;
+  onAddPlace: () => void;
 };
 
 export default function PlacesPage({
   tripId,
   participantId,
+  onAddPlace,
 }: PlacesPageProps) {
-  const [showAddPlace, setShowAddPlace] = useState(false);
   const [places, setPlaces] = useState<Place[]>([]);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
@@ -157,7 +157,7 @@ export default function PlacesPage({
 
         <button
           type="button"
-          onClick={() => setShowAddPlace(true)}
+          onClick={onAddPlace}
           className="min-h-11 shrink-0 rounded-[10px] border border-[#CED1D7] bg-white px-3 text-xs font-semibold text-[#17181B] shadow-sm"
         >
           + Add Place
@@ -186,7 +186,7 @@ export default function PlacesPage({
           </p>
           <button
             type="button"
-            onClick={() => setShowAddPlace(true)}
+            onClick={onAddPlace}
             className="mt-5 rounded-xl bg-[#6264F6] px-5 py-3 text-sm font-semibold text-white"
           >
             장소 추가하기
@@ -342,16 +342,6 @@ export default function PlacesPage({
           })}
         </div>
       )}
-      {showAddPlace && (
-        <AddPlaceModal
-            tripId={tripId}
-            participantId={participantId}
-            onClose={() => setShowAddPlace(false)}
-            onSaved={() => {
-            setShowAddPlace(false);
-            }}
-        />
-        )}
     </section>
   );
 }

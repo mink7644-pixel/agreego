@@ -2,6 +2,7 @@
 import TripPage from "./TripPage";
 import PlacesPage from "./PlacesPage";
 import VotePage from "./VotePage";
+import AddPlaceModal from "./AddPlaceModal";
 
 import BottomNavigation, {
   type AppTab,
@@ -14,7 +15,7 @@ import {
   useState,
 } from "react";
 import GoogleMap from "./GoogleMap";
-import SupabaseStatus from "./SupabaseStatus";
+
 import { supabase } from "../lib/supabase";
 
 type TripProfile = {
@@ -67,6 +68,7 @@ function createInviteCode() {
 
 export default function TripApp() {
   const [activeTab, setActiveTab] = useState<AppTab>("home");
+  const [showAddPlace, setShowAddPlace] = useState(false);
   const [focusAddPlace, setFocusAddPlace] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
   const [tripName, setTripName] = useState("");
@@ -672,15 +674,27 @@ export default function TripApp() {
         <header className="mb-6 border-b border-[#E2E4E8] bg-white">
           <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4">
             {/* AgreeGo 브랜드 */}
-            <div className="flex items-center gap-2">
-              <span className="flex h-[30px] w-[30px] items-center justify-center rounded-lg bg-[#6264F6] text-lg font-bold text-white">
-                A
-              </span>
+            {activeTab === "home" ? (
+              <div className="flex items-center gap-2">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#6264F6] text-2xl font-bold text-white">
+                  A
+                </div>
 
-              <h1 className="text-[21px] font-semibold tracking-[-1.2px] text-[#17181B]">
-                Agree<span className="text-[#6264F6]">Go</span>
+                <h1 className="text-3xl font-bold tracking-tight text-[#17181B]">
+                  Agree<span className="text-[#6264F6]">Go</span>
+                </h1>
+              </div>
+            ) : (
+              <h1 className="text-xl font-semibold text-[#17181B]">
+                {activeTab === "map"
+                  ? "Map"
+                  : activeTab === "places"
+                    ? "Places"
+                    : activeTab === "vote"
+                      ? "Vote"
+                      : "Trip"}
               </h1>
-            </div>
+            )}
 
             {/* 오른쪽 버튼 */}
             <div className="flex items-center gap-2">
@@ -733,12 +747,10 @@ export default function TripApp() {
           )}
         </header>
 
-
-        <SupabaseStatus />
-
         <div className="mt-5">
           {activeTab === "home" ? (
             <HomePage
+              tripId={profile.tripId}
               tripName={profile.tripName}
               nickname={profile.nickname}
               onNavigate={setActiveTab}
@@ -757,6 +769,7 @@ export default function TripApp() {
             <PlacesPage
               tripId={profile.tripId}
               participantId={profile.participantId}
+              onAddPlace={() => setShowAddPlace(true)}
             />
           ) : activeTab === "vote" ? (
             <VotePage
@@ -768,6 +781,7 @@ export default function TripApp() {
               tripId={profile.tripId}
               participantId={profile.participantId}
               focusAddPlace={focusAddPlace && activeTab === "map"}
+              onAddPlace={() => setShowAddPlace(true)}
             />
           )}
         </div>
@@ -779,6 +793,15 @@ export default function TripApp() {
             setActiveTab(tab);
           }}
         />
+
+        {showAddPlace && (
+          <AddPlaceModal
+            tripId={profile.tripId}
+            participantId={profile.participantId}
+            onClose={() => setShowAddPlace(false)}
+            onSaved={() => setShowAddPlace(false)}
+          />
+        )}
       </div>
     </main>
   );

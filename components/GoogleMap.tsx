@@ -48,6 +48,7 @@ type GoogleMapProps = {
   tripId: string;
   participantId: string;
   focusAddPlace?: boolean;
+  onAddPlace?: () => void;
 };
 
 type SelectedGooglePlace = {
@@ -119,6 +120,7 @@ export default function GoogleMap({
   tripId,
   participantId,
   focusAddPlace = false,
+  onAddPlace,
 }: GoogleMapProps) {
   const mapContainerRef =
     useRef<HTMLDivElement>(null);
@@ -1548,6 +1550,9 @@ export default function GoogleMap({
           (secondPlace.confirmedOrder ?? 0),
       );
 
+    const selectedMapPlace =
+      places.find((place) => place.id === selectedPlaceId) ?? null;
+
   return (
     <section className="space-y-6">
       {errorMessage && (
@@ -1564,7 +1569,7 @@ export default function GoogleMap({
         </div>
       )}
 
-      <div className="flex items-center gap-2 rounded-xl bg-white px-4 py-3 text-xs shadow-sm">
+      <div className="hidden flex items-center gap-2 rounded-xl bg-white px-4 py-3 text-xs shadow-sm">
         <span
           className={`h-2.5 w-2.5 rounded-full ${
             realtimeStatus === "connected"
@@ -1584,7 +1589,7 @@ export default function GoogleMap({
         </span>
       </div>
 
-      <div className="rounded-2xl bg-white p-5 shadow-sm">
+      <div className="hidden rounded-2xl bg-white p-5 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-base font-bold text-gray-900">
@@ -1636,11 +1641,19 @@ export default function GoogleMap({
         )}
       </div>
 
-      <div className="mx-auto w-full max-w-md">
-        <div className="mb-4">
-          <p className="text-[15px] leading-6 text-[#74777F]">
+      <div className="mx-auto w-full max-w-md px-5 pb-8 pt-6">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <p className="max-w-[220px] text-[15px] leading-6 text-[#74777F]">
             Explore places suggested by your group.
           </p>
+
+          <button
+            type="button"
+            onClick={onAddPlace}
+            className="min-h-11 shrink-0 rounded-[10px] border border-[#CED1D7] bg-white px-3 text-xs font-semibold text-[#17181B] shadow-sm"
+          >
+            + Add Place
+          </button>
         </div>
 
         <div
@@ -1651,11 +1664,58 @@ export default function GoogleMap({
         <p className="mt-3 text-sm leading-6 text-[#74777F]">
           지도 핀을 선택하면 장소의 위치를 확인할 수 있어요.
         </p>
+        
+        {/* 지도에서 선택한 장소 정보 */}
+        {selectedMapPlace && (
+          <article className="mt-4 overflow-hidden rounded-2xl border border-[#6264F6] bg-white shadow-sm">
+            <div className="p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs uppercase tracking-wider text-[#74777F]">
+                    {selectedMapPlace.category || "PLACE"}
+                  </p>
+
+                  <h3 className="mt-2 break-words text-lg font-semibold text-[#17181B]">
+                    {selectedMapPlace.name}
+                  </h3>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedPlaceId("")}
+                  aria-label="장소 정보 닫기"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#F7F7F5] text-xl text-[#74777F]"
+                >
+                  ×
+                </button>
+              </div>
+
+              <p className="mt-3 break-words text-sm leading-6 text-[#74777F]">
+                📍 {selectedMapPlace.address}
+              </p>
+
+              {selectedMapPlace.isConfirmed && (
+                <span className="mt-3 inline-block rounded-full bg-[#E7F5EC] px-3 py-1 text-xs font-medium text-[#25764E]">
+                  Confirmed
+                </span>
+              )}
+
+              {selectedMapPlace.recommendationReason && (
+                <div className="mt-4 border-t border-[#E2E4E8] pt-4">
+                  <p className="text-sm leading-6 text-[#303238]">
+                    “{selectedMapPlace.recommendationReason}”
+                  </p>
+                </div>
+              )}
+            </div>
+          </article>
+        )}
+
       </div>
 
       {/* 최종 확정 장소 */}
-      <div className="rounded-2xl bg-white p-5 shadow-sm">
-        <div className="flex items-start justify-between gap-4">
+      <div className="hidden rounded-2xl bg-white p-5 shadow-sm">
+        <div className="flex items-center justify-between gap-4">
           <div>
             <h2 className="text-lg font-bold text-gray-900">
               최종 확정 장소
@@ -1724,7 +1784,7 @@ export default function GoogleMap({
       </div>
       
       {/* 투표 결과 요약 */}
-      <div className="rounded-2xl bg-white p-5 shadow-sm">
+      <div className="hidden rounded-2xl bg-white p-5 shadow-sm">
         <div>
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-lg font-bold text-gray-900">
@@ -1816,7 +1876,7 @@ export default function GoogleMap({
       {/* 후보 장소 추가 영역 */}
       <div
         id="add-place-form"
-        className="scroll-mt-6 rounded-2xl bg-white p-5 shadow-sm"
+        className="hidden scroll-mt-6 rounded-2xl bg-white p-5 shadow-sm"
       >
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -1929,7 +1989,7 @@ export default function GoogleMap({
         </div>
       </div>
 
-      <div>
+      <div className="hidden">
         <div className="mb-4">
           <h2 className="text-2xl font-bold text-gray-900">
             후보 장소

@@ -1,3 +1,5 @@
+import { Map, MapPin, House, Check, Plane } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 "use client";
 
@@ -10,14 +12,14 @@ type BottomNavigationProps = {
 
 const navigationItems: {
   label: string;
-  icon: string;
+  Icon: LucideIcon;
   tab: AppTab;
 }[] = [
-  { label: "Map", icon: "🗺️", tab: "map" },
-  { label: "Places", icon: "📍", tab: "places" },
-  { label: "Home", icon: "⌂", tab: "home" },
-  { label: "Vote", icon: "✓", tab: "vote" },
-  { label: "Trip", icon: "✈", tab: "trip" },
+  { label: "Map", Icon: Map, tab: "map" },
+  { label: "Places", Icon: MapPin, tab: "places" },
+  { label: "Home", Icon: House, tab: "home" },
+  { label: "Vote", Icon: Check, tab: "vote" },
+  { label: "Trip", Icon: Plane, tab: "trip" },
 ];
 
 export default function BottomNavigation({
@@ -45,7 +47,7 @@ export default function BottomNavigation({
                   : "text-gray-500"
               }`}
             >
-              <span className="text-xl">{item.icon}</span>
+              <item.Icon size={22} strokeWidth={1.8} aria-hidden="true" />
               <span className="text-xs font-medium">
                 {item.label}
               </span>

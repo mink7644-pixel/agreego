@@ -1,11 +1,14 @@
+import HomeTripStats from "./HomeTripStats";
 
 type HomePageProps = {
+  tripId: string;
   tripName: string;
   nickname: string;
   onNavigate: (tab: "map" | "places" | "vote" | "trip") => void;
 };
 
 export default function HomePage({
+  tripId,
   tripName,
   nickname,
   onNavigate,
@@ -47,6 +50,8 @@ export default function HomePage({
         <p className="mt-2 text-sm text-gray-500">
           {nickname}님과 함께하는 여행 계획
         </p>
+
+        <HomeTripStats tripId={tripId} />
 
         <button
           type="button"
