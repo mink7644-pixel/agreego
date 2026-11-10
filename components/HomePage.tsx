@@ -16,7 +16,7 @@ export default function HomePage({
   onNavigate,
 }: HomePageProps) {
   return (
-    <section className="mx-auto flex w-full max-w-md flex-col gap-4 pb-6">
+    <section className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 pb-6">
       <HomeDestinationSlider />
 
       {/* 실제 여행방 정보 */}
