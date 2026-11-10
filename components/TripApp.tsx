@@ -785,7 +785,7 @@ export default function TripApp() {
           )}
         </header>
 
-        <div className="mt-5">
+        <div className={`mt-5 ${activeTab === "home" ? "px-4" : ""}`}>
           {activeTab === "home" ? (
             <HomePage
               tripId={profile.tripId}
