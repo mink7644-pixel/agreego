@@ -3,6 +3,7 @@ import TripPage from "./TripPage";
 import PlacesPage from "./PlacesPage";
 import VotePage from "./VotePage";
 import AddPlaceModal from "./AddPlaceModal";
+import { Share2, LogOut } from "lucide-react";
 
 import BottomNavigation, {
   type AppTab,
@@ -506,161 +507,196 @@ export default function TripApp() {
       </main>
     );
   }
-
+  
   /*
-   * 아직 여행방에 참여하지 않은 경우
-   */
+  * 아직 여행방에 참여하지 않은 경우
+  */
   if (!profile) {
     const isJoiningRoom = Boolean(roomCode);
 
+    const inputStyle =
+      "mt-2 h-[50px] w-full rounded-xl border border-[#CED1D7] bg-[#F7F7F5] px-4 text-base text-[#17181B] outline-none placeholder:text-[#9A9DA5] focus:border-[#6264F6] focus:ring-2 focus:ring-[#6264F6]/15";
+
     return (
-      <main className="flex min-h-screen items-center justify-center bg-gray-100 px-5 py-10">
-        <div className="w-full max-w-md rounded-3xl bg-white p-7 shadow-sm">
-          <div>
-            <p className="text-sm font-bold text-blue-600">
-              여행 장소 합의 서비스
-            </p>
+      <main className="min-h-screen bg-[#F7F7F5] px-6 pb-12 pt-12">
+        <div className="mx-auto w-full max-w-md">
 
-            <h1 className="mt-2 text-3xl font-bold tracking-tight text-gray-900">
-              {isJoiningRoom ? (
-                <>
-                  초대받은 여행방에
-                  <br />
-                  참여해보세요
-                </>
-              ) : (
-                <>
-                  친구들과 갈 곳을
-                  <br />
-                  함께 정해보세요
-                </>
-              )}
+          {/* AgreeGo 로고 */}
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-[30px] w-[30px] items-center justify-center rounded-lg bg-[#6264F6] text-lg font-bold text-white">
+              A
+            </div>
+
+            <h1 className="text-[21px] font-bold tracking-tight text-[#17181B]">
+              Agree
+              <span className="text-[#6264F6]">Go</span>
             </h1>
-
-            <p className="mt-4 text-sm text-gray-600">
-              닉네임과 개인 입장 번호를 입력해 여행방에 참여해주세요.
-            </p>
           </div>
 
-          <form
-            onSubmit={handleEnterTrip}
-            className="mt-8 space-y-5"
-          >
-            {!isJoiningRoom && (
+          {/* 메인 슬로건 */}
+          <div className="mt-20 mb-9">
+            <h2 className="text-[clamp(38px,11vw,48px)] leading-[1.05] font-bold tracking-[-0.065em] text-[#17181B]">
+              Agree first,
+              <br />
+              then go.
+            </h2>
+          </div>
+
+          {/* 여행방 생성 / 참여 카드 */}
+          <div className="rounded-[20px] border border-[#E2E4E8] bg-white/90 p-5 shadow-[0_18px_50px_rgba(24,27,35,0.10)]">
+
+            {/* 카드 상단 */}
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
+              <span className="rounded-full bg-[#EEEEFF] px-3 py-1.5 text-xs font-medium text-[#4F51E2]">
+                {isJoiningRoom ? "Join Trip" : "New Trip"}
+              </span>
+
+              <span className="text-sm font-medium text-[#17181B]">
+                {isJoiningRoom
+                  ? "Join your friends"
+                  : "Just three things to get started"}
+              </span>
+            </div>
+
+            <form onSubmit={handleEnterTrip} className="space-y-4">
+
+              {/* 여행방 이름: 새 여행방을 만들 때만 표시 */}
+              {!isJoiningRoom && (
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <label
+                      htmlFor="trip-name"
+                      className="text-sm font-medium text-[#17181B]"
+                    >
+                      Trip Name
+                    </label>
+
+                    <span className="text-xs text-[#74777F]">
+                      Up to 30 characters
+                    </span>
+                  </div>
+
+                  <input
+                    id="trip-name"
+                    type="text"
+                    value={tripName}
+                    onChange={(event) => {
+                      setTripName(event.target.value);
+                      setFormError("");
+                    }}
+                    placeholder="예: 서울 당일치기"
+                    maxLength={30}
+                    className={inputStyle}
+                  />
+                </div>
+              )}
+
+              {/* 닉네임 */}
               <div>
-                <label
-                  htmlFor="trip-name"
-                  className="text-sm font-semibold text-gray-800"
-                >
-                  여행방 이름
-                </label>
+                <div className="flex items-center justify-between gap-2">
+                  <label
+                    htmlFor="nickname"
+                    className="text-sm font-medium text-[#17181B]"
+                  >
+                    Your Nickname
+                  </label>
+
+                  <span className="text-xs text-[#74777F]">
+                    Up to 12 characters
+                  </span>
+                </div>
 
                 <input
-                  id="trip-name"
+                  id="nickname"
                   type="text"
-                  value={tripName}
+                  value={nickname}
                   onChange={(event) => {
-                    setTripName(
-                      event.target.value,
-                    );
+                    setNickname(event.target.value);
                     setFormError("");
                   }}
-                  placeholder="예: 서울 당일치기"
-                  maxLength={30}
-                  className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-gray-900 outline-none placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  placeholder="예: 민경"
+                  maxLength={12}
+                  className={inputStyle}
+                />
+              </div>
+
+              {/* 개인 PIN */}
+              <div>
+                <div className="flex items-center justify-between gap-2">
+                  <label
+                    htmlFor="participant-pin"
+                    className="text-sm font-medium text-[#17181B]"
+                  >
+                    Personal PIN
+                  </label>
+
+                  <span className="text-xs text-[#74777F]">
+                    4 digits
+                  </span>
+                </div>
+
+                <input
+                  id="participant-pin"
+                  type="password"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  value={pin}
+                  onChange={(event) => {
+                    const onlyNumbers =
+                      event.target.value.replace(/\D/g, "");
+
+                    setPin(onlyNumbers.slice(0, 4));
+                    setFormError("");
+                  }}
+                  placeholder="숫자 4자리"
+                  maxLength={4}
+                  className={`${inputStyle} tracking-[0.3em] placeholder:tracking-normal`}
                 />
 
-                <p className="mt-1 text-right text-xs text-gray-400">
-                  {tripName.length} / 30
+                <p className="mt-2 text-xs leading-5 text-[#74777F]">
+                  Use this PIN to identify yourself when you return.
                 </p>
               </div>
-            )}
 
-            <div>
-              <label
-                htmlFor="nickname"
-                className="text-sm font-semibold text-gray-800"
+              {/* 오류 메시지 */}
+              {formError && (
+                <p
+                  role="alert"
+                  className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600"
+                >
+                  {formError}
+                </p>
+              )}
+
+              {/* 제출 버튼 */}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#6264F6] px-5 py-3 text-[15px] font-semibold text-white transition-colors hover:bg-[#5153DF] disabled:cursor-not-allowed disabled:opacity-50"
               >
-                내 닉네임
-              </label>
+                {isSubmitting
+                  ? "처리 중..."
+                  : isJoiningRoom
+                    ? "Join Trip"
+                    : "Create Trip"}
 
-              <input
-                id="nickname"
-                type="text"
-                value={nickname}
-                onChange={(event) => {
-                  setNickname(
-                    event.target.value,
-                  );
-                  setFormError("");
-                }}
-                placeholder="예: 민경"
-                maxLength={12}
-                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-gray-900 outline-none placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              />
+                {!isSubmitting && (
+                  <span aria-hidden="true" className="text-lg">
+                    →
+                  </span>
+                )}
+              </button>
+            </form>
 
-              <p className="mt-1 text-right text-xs text-gray-400">
-                {nickname.length} / 12
-              </p>
-            </div>
-
-            <div>
-              <label
-                htmlFor="participant-pin"
-                className="text-sm font-semibold text-gray-800"
-              >
-                개인 입장 번호
-              </label>
-
-              <input
-                id="participant-pin"
-                type="password"
-                inputMode="numeric"
-                autoComplete="off"
-                value={pin}
-                onChange={(event) => {
-                  const onlyNumbers =
-                    event.target.value.replace(
-                      /\D/g,
-                      "",
-                    );
-
-                  setPin(onlyNumbers.slice(0, 4));
-                  setFormError("");
-                }}
-                placeholder="숫자 4자리"
-                maxLength={4}
-                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 text-sm tracking-[0.4em] text-gray-900 outline-none placeholder:tracking-normal placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              />
-
-              <p className="mt-2 text-xs leading-5 text-gray-500">
-                여행방에 다시 들어올 때 필요해요.
-                기억할 수 있는 숫자 4자리를 입력해주세요.
-              </p>
-            </div>
-
-            {formError && (
-              <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
-                {formError}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full rounded-xl bg-blue-600 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
-            >
-              {isSubmitting
-                ? "처리 중..."
-                : isJoiningRoom
-                  ? "여행방 참여"
-                  : "여행방 만들기"}
-            </button>
-          </form>
+            <p className="mt-3 text-center text-xs leading-5 text-[#74777F]">
+              Remember your PIN to return to this trip.
+            </p>
+          </div>
         </div>
       </main>
     );
   }
+
 
   const inviteLink =
     `${typeof window !== "undefined"
@@ -676,11 +712,11 @@ export default function TripApp() {
             {/* AgreeGo 브랜드 */}
             {activeTab === "home" ? (
               <div className="flex items-center gap-2">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#6264F6] text-2xl font-bold text-white">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#6264F6] text-lg font-bold text-white">
                   A
                 </div>
 
-                <h1 className="text-3xl font-bold tracking-tight text-[#17181B]">
+                <h1 className="text-[21px] font-bold tracking-tight text-[#17181B]">
                   Agree<span className="text-[#6264F6]">Go</span>
                 </h1>
               </div>
@@ -703,18 +739,20 @@ export default function TripApp() {
                 onClick={() => setShowInvite((prev) => !prev)}
                 aria-label="친구 초대"
                 aria-expanded={showInvite}
-                className="flex h-11 w-11 items-center justify-center rounded-[10px] border border-[#E2E4E8] bg-white text-xl text-[#17181B]"
+                className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-[#EEEEFF] px-3 text-xs font-semibold text-[#6264F6]"
               >
-                ↗
+                <Share2 size={17} strokeWidth={1.8} />
+                <span>초대</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleLeaveTrip}
                 aria-label="여행방 나가기"
-                className="flex h-11 w-11 items-center justify-center rounded-[10px] border border-[#E2E4E8] bg-white text-xl text-[#17181B]"
+                className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-[#E2E4E8] bg-white px-3 text-xs font-medium text-[#74777F]"
               >
-                ⇥
+                <LogOut size={17} strokeWidth={1.8} />
+                <span>나가기</span>
               </button>
             </div>
           </div>

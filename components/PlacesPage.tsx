@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { MapPin, ChevronDown, ChevronUp } from "lucide-react";
 
 type Place = {
   id: string;
@@ -222,8 +223,12 @@ export default function PlacesPage({
               >
                 <div className="p-4">
                   <div className="flex items-start gap-3">
-                    <div className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl bg-[#EEEEFF] text-xl">
-                      📍
+                    <div className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl bg-[#EEEEFF]">
+                      <MapPin
+                        size={21}
+                        strokeWidth={1.8}
+                        className="text-[#6264F6]"
+                      />
                     </div>
 
                     <div className="min-w-0 flex-1">
@@ -249,14 +254,16 @@ export default function PlacesPage({
                     </div>
                   </div>
 
-                  {place.recommendation_reason && (
+                  {(place.recommendation_reason || recommender) && (
                     <div className="mt-4 border-t border-[#E2E4E8] pt-4">
-                      <p className="text-[15px] leading-6 text-[#303238]">
-                        “{place.recommendation_reason}”
-                      </p>
+                      {place.recommendation_reason && (
+                        <p className="text-[15px] leading-6 text-[#303238]">
+                          “{place.recommendation_reason}”
+                        </p>
+                      )}
 
                       {recommender && (
-                        <p className="mt-1 text-sm text-[#74777F]">
+                        <p className="mt-2 text-sm text-[#74777F]">
                           Suggested by {recommender}
                         </p>
                       )}
@@ -278,8 +285,18 @@ export default function PlacesPage({
                     {voteCount} / {participantCount}명 투표 완료
                     </span>
 
-                    <span className="text-sm font-medium text-[#6264F6]">
-                    {isExpanded ? "접기 ↑" : "투표 현황 보기 ↓"}
+                    <span className="flex items-center gap-1.5 text-sm font-medium text-[#6264F6]">
+                      {isExpanded ? (
+                        <>
+                          접기
+                          <ChevronUp size={16} strokeWidth={1.8} />
+                        </>
+                      ) : (
+                        <>
+                          투표 현황 보기
+                          <ChevronDown size={16} strokeWidth={1.8} />
+                        </>
+                      )}
                     </span>
                 </button>
 

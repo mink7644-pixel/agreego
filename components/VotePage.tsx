@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { MapPin, Check } from "lucide-react";
 
 type VoteOption = "must_go" | "would_like" | "neutral" | "skip";
 
@@ -532,17 +533,24 @@ export default function VotePage({ tripId, participantId }: Props) {
                 className="rounded-2xl border border-[#E2E4E8] bg-white p-5 shadow-sm"
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-xs uppercase tracking-wider text-[#74777F]">
-                      {place.category || "PLACE"}
-                    </p>
-                    <h3 className="mt-2 break-words text-base font-semibold text-[#17181B]">
+                  <div className="flex min-w-0 flex-1 items-start gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#EEEEFF]">
+                      <MapPin
+                        size={20}
+                        strokeWidth={1.8}
+                        className="text-[#6264F6]"
+                      />
+                    </div>
+
+                    <div className="min-w-0">
+                    <h3 className="break-words text-base font-semibold text-[#17181B]">
                       {place.name}
                     </h3>
                     <p className="mt-2 text-sm text-[#74777F]">
                       {place.address}
                     </p>
                   </div>
+                </div>
 
                   {place.is_confirmed && (
                     <span className="shrink-0 rounded-full bg-[#E7F5EC] px-2 py-1 text-xs text-[#25764E]">
@@ -569,14 +577,16 @@ export default function VotePage({ tripId, participantId }: Props) {
                         onClick={() =>
                           void handleVote(place.id, option.value)
                         }
-                        className={`min-h-14 rounded-xl border px-2 py-3 text-xs font-medium transition-colors disabled:opacity-50 ${
+                        className={`flex min-h-14 items-center justify-center gap-1.5 rounded-xl border px-2 py-3 text-xs font-medium transition-all disabled:opacity-50 ${
                           selected
-                            ? "border-[#6264F6] bg-[#EEEEFF] text-[#4F51E2]"
-                            : "border-[#E2E4E8] bg-[#F7F7F5] text-[#74777F]"
+                            ? "border-2 border-[#6264F6] bg-[#EEEEFF] text-[#4F51E2]"
+                            : "border-[#E2E4E8] bg-white text-[#74777F] hover:bg-[#F7F7F5]"
                         }`}
                       >
                         {option.label}
-                        {selected && " ✓"}
+                        {selected && (
+                          <Check size={16} strokeWidth={2.2} aria-hidden="true" />
+                        )}
                       </button>
                     );
                   })}
@@ -592,10 +602,10 @@ export default function VotePage({ tripId, participantId }: Props) {
                 type="button"
                 onClick={() => void handleToggleConfirm(place)}
                 disabled={confirmingId !== null}
-                className={`mt-4 min-h-11 w-full rounded-xl border px-4 py-3 text-sm font-semibold disabled:opacity-50 ${
-                    place.is_confirmed
-                    ? "border-[#E2E4E8] bg-white text-[#74777F]"
-                    : "border-[#6264F6] bg-[#6264F6] text-white"
+                className={`mt-4 min-h-11 w-full rounded-xl border px-4 py-3 text-sm font-medium transition-colors disabled:opacity-50 ${
+                  place.is_confirmed
+                    ? "border-[#E2E4E8] bg-[#F7F7F5] text-[#74777F]"
+                    : "border-[#6264F6] bg-white text-[#6264F6] hover:bg-[#EEEEFF]"
                 }`}
                 >
                 {confirmingId === place.id
@@ -645,50 +655,48 @@ export default function VotePage({ tripId, participantId }: Props) {
         <div className="space-y-3">
             {confirmedPlaces.map((place, index) => (
             <article
-                key={place.id}
-                className="rounded-2xl border border-[#E2E4E8] bg-white p-5 shadow-sm"
+              key={place.id}
+              className="rounded-2xl border border-[#E2E4E8] bg-white p-5 shadow-sm"
             >
-                <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#E7F5EC] text-sm font-semibold text-[#25764E]">
-                    {index + 1}
+              {/* 장소 번호, 정보, 확정 배지 */}
+              <div className="flex items-start gap-3">
+                {/* 장소 순서 */}
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#EEEEFF] text-sm font-semibold text-[#6264F6]">
+                  {index + 1}
                 </div>
 
+                {/* 장소 이름과 주소 */}
                 <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-xs uppercase tracking-wider text-[#74777F]">
-                        {place.category || "PLACE"}
-                    </p>
-
-                    <span className="rounded-full bg-[#E7F5EC] px-2 py-1 text-xs font-medium text-[#25764E]">
-                        Confirmed
-                    </span>
-                    </div>
-
-                    <h3 className="mt-2 break-words text-base font-semibold text-[#17181B]">
+                  <h3 className="break-words text-base font-semibold text-[#17181B]">
                     {place.name}
-                    </h3>
+                  </h3>
 
-                    <p className="mt-2 break-words text-sm text-[#74777F]">
+                  <p className="mt-2 break-words text-sm leading-5 text-[#74777F]">
                     {place.address || "주소 정보 없음"}
-                    </p>
+                  </p>
+                </div>
 
-                    <button
-                        type="button"
-                        onClick={() => void handleToggleConfirm(place)}
-                        disabled={confirmingId !== null}
-                        className="mt-4 min-h-11 rounded-xl border border-[#E2E4E8] bg-white px-4 text-xs font-medium text-[#74777F] disabled:opacity-50"
-                        >
-                        {confirmingId === place.id ? "저장 중..." : "확정 취소"}
-                        </button>
-                </div>
-                </div>
+                {/* 오른쪽 상단 확정 배지 */}
+                <span className="shrink-0 rounded-full bg-[#E7F5EC] px-3 py-1 text-xs font-medium text-[#25764E]">
+                  Confirmed
+                </span>
+              </div>
+
+              {/* 확정 취소 버튼 */}
+              <button
+                type="button"
+                onClick={() => void handleToggleConfirm(place)}
+                disabled={confirmingId !== null}
+                className="mt-5 min-h-11 w-full rounded-xl border border-[#E2E4E8] bg-[#F7F7F5] px-4 py-3 text-sm font-medium text-[#74777F] transition-colors hover:bg-[#EEF0F3] disabled:opacity-50"
+              >
+                {confirmingId === place.id ? "저장 중..." : "확정 취소"}
+              </button>
             </article>
             ))}
         </div>
         )}
     </div>
     )}
-
     </section>
   );
 }

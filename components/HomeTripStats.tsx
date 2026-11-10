@@ -161,88 +161,66 @@ export default function HomeTripStats({ tripId }: Props) {
   }
 
   return (
-    <div className="mt-5">
-    
-    {/* 여행 참여자 아바타 */}
-    <div className="mb-5 flex items-center justify-between gap-3">
-    <div>
-        <p className="text-xs font-medium text-[#74777F]">
-        TRAVELERS
+    <div className="mt-4 border-t border-[#E2E4E8] pt-4">
+      {/* 참여자 정보 */}
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm text-[#74777F]">
+          Planning together with {participants.length} friends.
         </p>
-        <p className="mt-1 text-sm text-[#17181B]">
-        {participants.length} friends planning together
-        </p>
-    </div>
 
-    <div className="flex shrink-0 -space-x-2">
-        {participants.slice(0, 4).map((person, index) => {
-        const colors = [
-            "bg-[#C6C2FF]",
-            "bg-[#FFB5A4]",
-            "bg-[#F3D67C]",
-            "bg-[#A8D1E8]",
-        ];
+        <div className="flex shrink-0 -space-x-2">
+          {participants.slice(0, 4).map((person, index) => {
+            const colors = [
+              "bg-[#C6C2FF]",
+              "bg-[#FFB5A4]",
+              "bg-[#F3D67C]",
+              "bg-[#A8D1E8]",
+            ];
 
-        return (
-            <div
-            key={person.id}
-            title={person.nickname}
-            className={`flex h-8 w-8 items-center justify-center rounded-full border-2 border-white text-xs font-semibold text-[#17181B] ${
-                colors[index % colors.length]
-            }`}
-            >
-            {person.nickname.slice(0, 1)}
+            return (
+              <div
+                key={person.id}
+                title={person.nickname}
+                className={`flex h-[30px] w-[30px] items-center justify-center rounded-full border-2 border-white text-xs font-medium text-[#4F51E2] ${
+                  colors[index % colors.length]
+                }`}
+              >
+                {person.nickname.slice(0, 1)}
+              </div>
+            );
+          })}
+
+          {participants.length > 4 && (
+            <div className="flex h-[30px] w-[30px] items-center justify-center rounded-full border-2 border-white bg-[#EEF0F3] text-[10px] font-medium text-[#74777F]">
+              +{participants.length - 4}
             </div>
-        );
-        })}
-
-        {participants.length > 4 && (
-        <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-[#EEF0F3] text-xs font-semibold text-[#74777F]">
-            +{participants.length - 4}
+          )}
         </div>
-        )}
-    </div>
-    </div>
-
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-[#74777F]">
-          Trip Progress
-        </span>
-        <span className="text-sm font-semibold text-[#6264F6]">
-          {progress}%
-        </span>
       </div>
 
-      <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#EEEEFF]">
-        <div
-          className="h-full rounded-full bg-[#6264F6] transition-all"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
+      {/* 여행 투표 진행률 */}
+      <div className="mt-5">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium text-[#17181B]">
+            Trip Progress
+          </span>
+          <span className="text-sm font-semibold text-[#6264F6]">
+            {progress}%
+          </span>
+        </div>
 
-      <p className="mt-2 text-xs text-[#74777F]">
-        {stats.participants} travelers · {stats.votes} / {totalVotes} votes
-      </p>
-
-      <div className="mt-4 grid grid-cols-3 gap-2">
-        {[
-          { label: "Places", value: stats.places },
-          { label: "Votes", value: stats.votes },
-          { label: "Confirmed", value: stats.confirmed },
-        ].map((item) => (
+        <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#E9E9FF]">
           <div
-            key={item.label}
-            className="rounded-xl bg-[#F7F7F5] px-2 py-3 text-center"
-          >
-            <p className="text-xl font-semibold text-[#17181B]">
-              {item.value}
-            </p>
-            <p className="mt-1 text-xs text-[#74777F]">
-              {item.label}
-            </p>
-          </div>
-        ))}
+            className="h-full rounded-full bg-[#6264F6] transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+
+        <p className="mt-2 text-xs text-[#74777F]">
+          {stats.votes} of {totalVotes} preferences submitted
+        </p>
       </div>
     </div>
   );
+
 }

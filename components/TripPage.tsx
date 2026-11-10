@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { Share2, Copy, Check, UserPlus, ChartNoAxesColumnIncreasing, Plane } from "lucide-react";
 
 type Participant = {
   id: string;
@@ -186,222 +187,286 @@ export default function TripPage({
 
   return (
     <section className="mx-auto flex w-full max-w-md flex-col gap-4 px-5 pb-6 pt-6 text-[#17181B]">
-      <p className="text-[15px] text-[#74777F]">
+      <div className="mb-4">
+      <p className="max-w-[230px] text-[15px] leading-[23px] text-[#74777F]">
         Manage invites, travelers, and trip progress.
       </p>
+    </div>
+    
+    {/* 현재 여행방 */}
+    <article className={cardStyle}>
+      <div className="flex items-center gap-3">
+        {/* 여행 아이콘 */}
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#EEEEFF]">
+          <Plane
+            size={21}
+            strokeWidth={1.8}
+            className="text-[#6264F6]"
+          />
+        </div>
 
-      {/* 현재 여행방 */}
-      <article className={cardStyle}>
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#EEEEFF] text-xl text-[#6264F6]">
-            ✈
-          </div>
+        {/* 여행방 정보 */}
+        <div className="min-w-0 flex-1">
+          <p className="text-xs tracking-[0.1em] text-[#74777F]">
+            Current Trip
+          </p>
 
-          <div className="min-w-0 flex-1">
-            <p className="text-xs tracking-wider text-[#74777F]">
-              Current Trip
-            </p>
-            <h2 className="mt-1 break-words text-base font-semibold">
-              {tripName}
-            </h2>
-            <p className="mt-1 text-sm text-[#74777F]">
-              {nickname}님으로 참여 중
-            </p>
-          </div>
+          <h2 className="mt-2 break-words text-base font-semibold text-[#17181B]">
+            {tripName}
+          </h2>
 
-          <div className="flex shrink-0 -space-x-2">
-            {participants.slice(0, 4).map((person, index) => (
+          <p className="mt-2 text-sm text-[#74777F]">
+            {nickname}님으로 참여 중
+          </p>
+        </div>
+
+        {/* 참여자 아바타 */}
+        <div className="flex shrink-0 -space-x-2">
+          {participants.slice(0, 4).map((person, index) => (
+            <div
+              key={person.id}
+              title={person.nickname}
+              className={`flex h-[30px] w-[30px] items-center justify-center rounded-full border-2 border-white text-xs font-semibold ${
+                avatarColors[index % avatarColors.length]
+              }`}
+            >
+              {person.nickname.slice(0, 1)}
+            </div>
+          ))}
+
+          {participants.length > 4 && (
+            <div className="flex h-[30px] w-[30px] items-center justify-center rounded-full border-2 border-white bg-[#EEF0F3] text-[10px] font-medium text-[#74777F]">
+              +{participants.length - 4}
+            </div>
+          )}
+        </div>
+      </div>
+    </article>
+
+    {/* 친구 초대 */}
+    <article className={cardStyle}>
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-xs tracking-[0.1em] text-[#74777F]">
+            CARD 02
+          </p>
+          <h2 className="mt-2 text-base font-semibold text-[#17181B]">
+            Invite Friends
+          </h2>
+        </div>
+
+        <Share2 size={20} strokeWidth={1.8} className="text-[#6264F6]" />
+      </div>
+
+      <p className="mt-3 text-[15px] leading-[23px] text-[#74777F]">
+        Share this link so friends can join without signing up.
+      </p>
+
+      {/* 초대 링크와 복사 버튼 */}
+      <div className="mt-4 flex items-center gap-2 rounded-[11px] border border-[#E2E4E8] bg-[#F7F7F5] py-[7px] pl-3 pr-[7px]">
+        <p
+          title={inviteLink}
+          className="min-w-0 flex-1 truncate text-sm text-[#74777F]"
+        >
+          {inviteLink}
+        </p>
+
+        <button
+          type="button"
+          onClick={onCopyInviteLink}
+          className="flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-[#6264F6] px-3 text-xs font-semibold text-white transition-colors hover:bg-[#5153DF]"
+        >
+          {copyMessage ? (
+            <Check size={16} strokeWidth={2} />
+          ) : (
+            <Copy size={16} strokeWidth={1.8} />
+          )}
+
+          {copyMessage ? "Copied" : "Copy Link"}
+        </button>
+      </div>
+
+      {/* 링크 복사 안내 메시지 */}
+      {copyMessage && (
+        <p role="status" className="mt-2 text-xs text-[#6264F6]">
+          {copyMessage}
+        </p>
+      )}
+    </article>
+
+    {/* 참여자 목록 */}
+    <article className={cardStyle}>
+      {/* 카드 제목 */}
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-xs tracking-[0.1em] text-[#74777F]">
+            CARD 03
+          </p>
+
+          <h2 className="mt-2 text-base font-semibold text-[#17181B]">
+            Travelers
+          </h2>
+        </div>
+
+        <button
+          type="button"
+          onClick={onCopyInviteLink}
+          className="flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-xs font-medium text-[#4F51E2] hover:bg-[#F0F0FF]"
+        >
+          <UserPlus size={17} strokeWidth={1.8} />
+          Invite
+        </button>
+      </div>
+
+      {/* 참여자 목록 */}
+      <div className="mt-4 border-t border-[#E2E4E8]">
+        {loading ? (
+          <p className="py-5 text-sm text-[#74777F]">
+            참여자 정보를 불러오는 중...
+          </p>
+        ) : errorMessage ? (
+          <p role="alert" className="py-5 text-sm text-red-500">
+            {errorMessage}
+          </p>
+        ) : participants.length === 0 ? (
+          <p className="py-5 text-sm text-[#74777F]">
+            아직 참여자가 없어요.
+          </p>
+        ) : (
+          participants.map((person, index) => (
+            <div
+              key={person.id}
+              className="flex min-h-[65px] items-center gap-3 border-b border-[#E2E4E8] py-3 last:border-b-0"
+            >
+              {/* 참여자 아바타 */}
               <div
-                key={person.id}
-                title={person.nickname}
-                className={`flex h-8 w-8 items-center justify-center rounded-full border-2 border-white text-xs font-semibold ${
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-white text-sm font-semibold ${
                   avatarColors[index % avatarColors.length]
                 }`}
               >
                 {person.nickname.slice(0, 1)}
               </div>
-            ))}
-          </div>
-        </div>
-      </article>
 
-      {/* 친구 초대 */}
-      <article className={cardStyle}>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs tracking-wider text-[#74777F]">
-              CARD 02
-            </p>
-            <h2 className="mt-2 text-base font-semibold">
-              Invite Friends
-            </h2>
-          </div>
-          <span className="text-xl text-[#6264F6]">↗</span>
-        </div>
+              {/* 닉네임 및 역할 */}
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold text-[#17181B]">
+                  {person.nickname}
+                </p>
 
-        <p className="mt-3 text-[15px] leading-relaxed text-[#74777F]">
-          Share this link so friends can join without signing up.
-        </p>
-
-        <div className="mt-4 flex items-center gap-2 rounded-xl border border-[#E2E4E8] bg-[#F7F7F5] p-2">
-          <p className="min-w-0 flex-1 truncate pl-1 text-sm text-[#74777F]">
-            {inviteLink}
-          </p>
-
-          <button
-            type="button"
-            onClick={onCopyInviteLink}
-            className="min-h-11 shrink-0 rounded-lg bg-[#6264F6] px-3 text-xs font-semibold text-white"
-          >
-            Copy Link
-          </button>
-        </div>
-
-        {copyMessage && (
-          <p className="mt-2 text-xs text-[#6264F6]">
-            {copyMessage}
-          </p>
-        )}
-      </article>
-
-      {/* 참여자 목록 */}
-      <article className={cardStyle}>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs tracking-wider text-[#74777F]">
-              CARD 03
-            </p>
-            <h2 className="mt-2 text-base font-semibold">
-              Travelers
-            </h2>
-          </div>
-
-          <button
-            type="button"
-            onClick={onCopyInviteLink}
-            className="min-h-11 px-2 text-xs font-medium text-[#4F51E2]"
-          >
-            Invite ↗
-          </button>
-        </div>
-
-        <div className="mt-3 border-t border-[#E2E4E8]">
-          {loading ? (
-            <p className="py-5 text-sm text-gray-500">
-              참여자 정보를 불러오는 중...
-            </p>
-          ) : errorMessage ? (
-            <p className="py-5 text-sm text-red-500">
-              {errorMessage}
-            </p>
-          ) : (
-            participants.map((person, index) => (
-              <div
-                key={person.id}
-                className="flex min-h-[65px] items-center gap-3 border-b border-[#E2E4E8] py-3"
-              >
-                <div
-                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
-                    avatarColors[index % avatarColors.length]
-                  }`}
-                >
-                  {person.nickname.slice(0, 1)}
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold">
-                    {person.nickname}
-                  </p>
-                  <p className="mt-1 text-xs text-[#74777F]">
-                    {person.id === participantId
-                      ? "You"
-                      : "Traveler"}
-                  </p>
-                </div>
+                <p className="mt-1 text-xs text-[#74777F]">
+                  {person.id === participantId ? "You" : "Traveler"}
+                </p>
               </div>
-            ))
-          )}
-        </div>
 
-        {!loading && !errorMessage && (
-          <p className="mt-3 text-xs text-[#74777F]">
-            총 {participants.length}명 참여 중
-          </p>
+              {/* 내 프로필 표시 */}
+              {person.id === participantId && (
+                <span className="rounded-full bg-[#EEEEFF] px-3 py-1 text-xs font-medium text-[#4F51E2]">
+                  You
+                </span>
+              )}
+            </div>
+          ))
         )}
-      </article>
+      </div>
+
+      {/* 참여자 수 */}
+      {!loading && !errorMessage && (
+        <div className="mt-4 flex items-center justify-between">
+          <span className="text-xs text-[#74777F]">
+            Total Travelers
+          </span>
+
+          <span className="rounded-full bg-[#EEF0F3] px-3 py-1 text-xs font-semibold text-[#17181B]">
+            {participants.length}
+          </span>
+        </div>
+      )}
+    </article>
 
     {/* 여행 진행 현황 */}
     <article className={cardStyle}>
-    <p className="text-xs tracking-wider text-[#74777F]">
-        CARD 04
-    </p>
+      {/* 카드 제목 */}
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-xs tracking-[0.1em] text-[#74777F]">
+            CARD 04
+          </p>
 
-    <h2 className="mt-2 text-base font-semibold">
-        Trip Progress
-    </h2>
+          <h2 className="mt-2 text-base font-semibold text-[#17181B]">
+            Trip Progress
+          </h2>
+        </div>
 
-    {statsError ? (
-        <p className="mt-4 text-sm text-red-500">
-        진행 현황을 불러오지 못했습니다.
+          <ChartNoAxesColumnIncreasing
+            size={20}
+            strokeWidth={1.8}
+            className="text-[#6264F6]"
+          />
+      </div>
+
+      {statsError ? (
+        <p role="alert" className="mt-4 text-sm text-red-500">
+          진행 현황을 불러오지 못했습니다.
         </p>
-    ) : statsLoading ? (
+      ) : statsLoading ? (
         <p className="mt-4 text-sm text-[#74777F]">
-        진행 현황을 불러오는 중...
+          진행 현황을 불러오는 중...
         </p>
-    ) : (
+      ) : (
         <>
-        <div className="mt-5 flex items-center justify-between">
-            <span className="text-sm text-[#74777F]">
-            Voting Progress
+          {/* 투표 진행률 */}
+          <div className="mt-6 flex items-center justify-between">
+            <span className="text-sm font-medium text-[#17181B]">
+              Voting Progress
             </span>
 
             <span className="text-sm font-semibold text-[#6264F6]">
-            {progress}%
+              {progress}%
             </span>
-        </div>
+          </div>
 
-        <div
+          <div
             role="progressbar"
             aria-label="투표 진행률"
             aria-valuenow={progress}
             aria-valuemin={0}
             aria-valuemax={100}
-            className="mt-2 h-2 overflow-hidden rounded-full bg-[#EEEEFF]"
-        >
+            className="mt-3 h-2 overflow-hidden rounded-full bg-[#EEEEFF]"
+          >
             <div
-            className="h-full rounded-full bg-[#6264F6] transition-all duration-300"
-            style={{ width: `${progress}%` }}
+              className="h-full rounded-full bg-[#6264F6] transition-all duration-300"
+              style={{ width: `${progress}%` }}
             />
-        </div>
+          </div>
 
-        <p className="mt-2 text-xs text-[#74777F]">
-            {voteCount} / {totalPossibleVotes} votes completed
-        </p>
+          <p className="mt-2 text-xs text-[#74777F]">
+            {voteCount} of {totalPossibleVotes} preferences submitted
+          </p>
 
-        <div className="mt-5 grid grid-cols-3 gap-2">
+          {/* 여행 통계 */}
+          <div className="mt-5 grid grid-cols-3 gap-2">
             {[
-            { label: "Places", value: placeCount },
-            { label: "Votes", value: voteCount },
-            { label: "Confirmed", value: confirmedCount },
+              { label: "Places", value: placeCount },
+              { label: "Votes", value: voteCount },
+              { label: "Confirmed", value: confirmedCount },
             ].map((stat) => (
-            <div
+              <div
                 key={stat.label}
-                className="rounded-xl bg-[#F7F7F5] p-3 text-center"
-            >
-                <p className="text-xl font-semibold text-[#17181B]">
-                {stat.value}
+                className="rounded-xl border border-[#EEF0F3] bg-[#F7F7F5] px-2 py-4 text-center"
+              >
+                <p className="text-2xl font-semibold tracking-tight text-[#17181B]">
+                  {stat.value}
                 </p>
 
-                <p className="mt-1 text-xs text-[#74777F]">
-                {stat.label}
+                <p className="mt-2 text-xs text-[#74777F]">
+                  {stat.label}
                 </p>
-            </div>
+              </div>
             ))}
-        </div>
+          </div>
         </>
-    )}
+      )}
     </article>
-
     </section>
   );
 }
