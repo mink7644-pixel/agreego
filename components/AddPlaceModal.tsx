@@ -67,6 +67,9 @@ export default function AddPlaceModal({
         });
 
         element.setAttribute("aria-label", "여행 장소 검색");
+
+        if (!container) return;
+
         autocompleteRef.current = element;
         container.replaceChildren(element);
 
